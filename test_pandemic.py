@@ -50,26 +50,26 @@ class TestPandemic(unittest.TestCase):
 
     def test_add_city(self):
         add_city(ISTANBUL)
-        self.assertEqual(ISTANBUL.phase, [1])
+        self.assertEqual(ISTANBUL.phase, [3, 1])
 
     def test_epidemie_generell(self):
         init_standard_setting()
         epidemie(ISTANBUL)
-        self.assertEqual([1, 0], ISTANBUL.phase)
-        self.assertEqual([4, 0], KAIRO.phase)
+        self.assertEqual([3, 1, 0], ISTANBUL.phase)
+        self.assertEqual([0, 4, 0], KAIRO.phase)
 
     def test_epidemie_2te(self):
         init_standard_setting()
         epidemie(ISTANBUL)
         epidemie(LAGOS)
-        self.assertEqual([1, 0, 0], ISTANBUL.phase)
-        self.assertEqual([3, 1, 0], LAGOS.phase)
+        self.assertEqual([3, 1, 0, 0], ISTANBUL.phase)
+        self.assertEqual([0, 3, 1, 0], LAGOS.phase)
 
     def test_add_city_nach_epidemie(self):
         init_standard_setting()
         epidemie(ISTANBUL)
         add_city(ISTANBUL)
-        self.assertEqual([1, 1], ISTANBUL.phase)
+        self.assertEqual([3, 0, 1], ISTANBUL.phase)
 
     def test_next_2_infekts_1epi(self):
         init_standard_setting()

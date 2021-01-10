@@ -9,12 +9,12 @@ class City:
         self.color = color
         self.name = city_name
         self.gesamt = gesamt
-        self.phase = [gesamt, 0]
-        self.epidemie = [0]
+        self.phase = self.reset()
 
     def reset(self):
-        self.phase = [0]
-        self.epidemie = [0]
+        self.phase = [self.gesamt, 0]
+        return self.phase
+
 
 SCHWARZ = "Schwarz"
 GELB = "Gelb"
