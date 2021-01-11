@@ -87,12 +87,13 @@ def draw():
 
 
 def output(stack):
-    print("------------------------")
+    full_text = ["----------------"]
     for city in stack:
         if stack[city] > 0:
-            print(city + ": " + str(stack[city]))
-    print("-------------------------------------------")
-    return stack
+            ret_text = city + ": " + str(stack[city])
+            full_text.append(ret_text)
+    full_text.append("-------------------------------------------")
+    return "\n".join(full_text)
 
 
 def main():
@@ -106,7 +107,7 @@ def main():
                 infection = int(infects)
             except:
                 pass
-        output(get_stack_of_x_draws(infection, stack={}))
+        print(output(get_stack_of_x_draws(infection, stack={})))
         if city is None:
             infection = old_infection
 
