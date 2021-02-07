@@ -1,6 +1,6 @@
 import unittest
-from  pandemic import *
-from  Cities import *
+from pandemic import *
+from Cities import *
 
 
 def init():

@@ -1,0 +1,3 @@
+import pandemic
+
+pandemic.main()
