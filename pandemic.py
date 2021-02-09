@@ -5,10 +5,12 @@ import Cities
 def add_city(city):
     if city is None:
         return
-    city.phase[-1] += 1
     pos = -2
     while city.phase[pos] == 0:
         pos -= 1
+        if abs(pos) > len(city.phase):
+            return
+    city.phase[-1] += 1
     city.phase[pos] -= 1
 
 

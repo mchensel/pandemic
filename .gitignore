@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.gitignore
+profiles_settings.xml
+misc.xml
+modules.xml
+pandemic.iml
+vcs.xml
