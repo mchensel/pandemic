@@ -1,3 +1,3 @@
-import pandemic
+import GUI
 
-pandemic.main()
+GUI.PandemicApp().run()
