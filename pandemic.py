@@ -1,32 +1,36 @@
 
 import Cities
 
+CARDS_PER_EPIDEMY = 9
 
-def add_city(city):
-    if city is None:
-        return
-    pos = -2
-    while city.phase[pos] == 0:
-        pos -= 1
-        if abs(pos) > len(city.phase):
+
+class Pandemic:
+
+    def __init__(self):
+        self.DRAWS = 0
+        self.NUMBER_OF_EPIDEMIES = 0
+
+    def add_draw(self):
+        self.DRAWS += 1
+
+    def epidemie(self, city):
+        if city is None:
             return
-    city.phase[-1] += 1
-    city.phase[pos] -= 1
+        city.phase[-1] += 1
+        city.phase[0] -= 1
+        self.NUMBER_OF_EPIDEMIES += 1
+        Cities.for_all_cities(lambda c: c.phase.append(0))
 
-
-def for_all_cities(f):
-    ret = []
-    for city in Cities.ALL_CITIES:
-        ret.append(f(city))
-    return ret
-
-
-def epidemie(city):
-    if city is None:
-        return
-    city.phase[-1] += 1
-    city.phase[0] -= 1
-    for_all_cities(lambda c: c.phase.append(0))
+    def get_probability(self):
+        rounds, number_in_stack = divmod(self.DRAWS * 2, CARDS_PER_EPIDEMY)
+        next_round = CARDS_PER_EPIDEMY - number_in_stack
+        if self.NUMBER_OF_EPIDEMIES * CARDS_PER_EPIDEMY > self.DRAWS * 2:
+            if next_round == 1:
+                return 1 / CARDS_PER_EPIDEMY
+            if next_round == 0:
+                return 2 / CARDS_PER_EPIDEMY
+            return 0
+        return min(2 / next_round, 1)
 
 
 def get_stack_of_x_draws(draws, phase=-2, stack={}):
@@ -36,7 +40,7 @@ def get_stack_of_x_draws(draws, phase=-2, stack={}):
         stack[c.name] += c.phase[phase]
         return stack[c.name]
 
-    all_cards = max(sum(for_all_cities(phasen_stapel)), 0)
+    all_cards = max(sum(Cities.for_all_cities(phasen_stapel)), 0)
     if all_cards < draws:
         return get_stack_of_x_draws(draws - all_cards, phase - 1, stack)
     return stack
@@ -47,7 +51,7 @@ def next_x_infects(x, city):
     return stack[city.name]
 
 
-def draw():
+def draw(my_pandemic: Pandemic):
     """
     usage:
     [e,o] [<cityname:str>] [<next infection draws:int>] [<number of next draws for analyze>]
@@ -82,9 +86,9 @@ def draw():
 
     city, epi = get_city()
     if epi:
-        epidemie(city)
+        my_pandemic.epidemie(city)
     else:
-        add_city(city)
+        my_pandemic.add_city(city)
     return city, epi
 
 
@@ -101,8 +105,9 @@ def output(stack):
 def main():
     infection = 2
     old_infection = infection
+    my_pandemic = Pandemic()
     while True:
-        city, infects = draw()
+        city, infects = draw(my_pandemic)
         if city is None:
             old_infection = infection
             try:

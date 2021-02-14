@@ -55,3 +55,22 @@ ALL_CITIES = set([])
 for color_city in CITIES.values():
     for l_city in color_city:
         ALL_CITIES.add(l_city)
+
+
+def add_city(city):
+    if city is None:
+        return
+    pos = -2
+    while city.phase[pos] == 0:
+        pos -= 1
+        if abs(pos) > len(city.phase):
+            return
+    city.phase[-1] += 1
+    city.phase[pos] -= 1
+
+
+def for_all_cities(f):
+    ret = []
+    for city in ALL_CITIES:
+        ret.append(f(city))
+    return ret

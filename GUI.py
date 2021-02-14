@@ -37,7 +37,7 @@ class CityButton(button.Button):
 
     def city_button_text(self):
         btn_text = self.name() + " " + str(self.phase())
-        btn_text = str(self.phase(-1)) + btn_text.rjust(25)
+        btn_text = str(self.phase(-2)) + btn_text.rjust(30)
         self.text = btn_text
 
 
@@ -47,13 +47,22 @@ class PandemicFrame(boxlayout.BoxLayout):
         super(PandemicFrame, self).__init__(**kwargs)
         self.padding = 10
         self.EPIDEMY = False
+        self.PLAYER_1 = True
         self.orientation = "vertical"
+        self.pandemic = pandemic.Pandemic()
         self.city_buttons = self.create_city_buttons()
         self.epidemy_button = self.create_epidemy_button()
+        self.draw_button = self.create_draw_button()
         self.arrange_buttons()
 
+    def epidemy_text(self):
+        number, rest = divmod(self.pandemic.get_probability() * 100, 1)
+        return "EPIDEMIE " + \
+             str(number) + "%"
+
     def create_epidemy_button(self):
-        ret = button.Button(text="EPIDEMIE")
+        ret = button.Button()
+        ret.text = self.epidemy_text()
 
         def epidemy_function(init=False):
             if self.EPIDEMY or init:
@@ -68,11 +77,28 @@ class PandemicFrame(boxlayout.BoxLayout):
         ret.on_press = epidemy_function
         return ret
 
+    def create_draw_button(self):
+        ret = button.Button(text="Spieler 1")
+
+        def draw_function(init=False):
+            if not self.PLAYER_1 or init:
+                self.PLAYER_1 = True
+                ret.text = "Spieler 1"
+            else:
+                self.PLAYER_1 = False
+                ret.text = "Spieler 2"
+            self.pandemic.add_draw()
+            if not init:
+                self.arrange_buttons()
+        draw_function(True)
+        ret.on_press = draw_function
+        return ret
+
     def city_buttons_data(self):
         ret = []
         for city_button in self.city_buttons:
             phase = 0
-            for pos in range(1, len(city_button.phase() )):
+            for pos in range(2, len(city_button.phase())+1):
                 phase += city_button.phase(-pos)*(10**(1-pos))
                 pass
 
@@ -81,7 +107,9 @@ class PandemicFrame(boxlayout.BoxLayout):
 
     def arrange_buttons(self):
         self.clear_widgets()
+        self.epidemy_button.text = self.epidemy_text()
         self.add_widget(self.epidemy_button)
+        self.add_widget(self.draw_button)
         city_dataframe = pandas.DataFrame(data=self.city_buttons_data(), columns=["name", "color", "phase", "button"])
         for index, city_row in city_dataframe.sort_values("phase", ascending=False).iterrows():
             city_button = city_row["button"]
@@ -99,10 +127,10 @@ class PandemicFrame(boxlayout.BoxLayout):
 
     def action_city_press(self, city, city_button):
         if self.EPIDEMY:
-            pandemic.epidemie(city)
+            self.pandemic.epidemie(city)
             self.epidemy_button.on_press()
         else:
-            pandemic.add_city(city)
+            Cities.add_city(city)
         self.arrange_buttons()
 
     def create_city_buttons(self):
