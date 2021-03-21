@@ -1,7 +1,8 @@
 
 import Cities
 
-CARDS_PER_EPIDEMY = 9
+ALL = sum(Cities.for_all_cities(lambda c: c.gesamt))
+CARDS_PER_EPIDEMY = ALL / 5
 
 
 class Pandemic:

@@ -35,9 +35,9 @@ class CityButton(button.Button):
     def get_color(self):
         return self.city.color
 
-    def city_button_text(self):
+    def city_button_text(self, max_phase_level=-2):
         btn_text = self.name() + " " + str(self.phase())
-        btn_text = str(self.phase(-2)) + btn_text.rjust(30)
+        btn_text = str(self.phase(max_phase_level)) + btn_text.rjust(30)
         self.text = btn_text
 
 
@@ -48,6 +48,7 @@ class PandemicFrame(boxlayout.BoxLayout):
         self.padding = 10
         self.EPIDEMY = False
         self.PLAYER_1 = True
+        self.block = False
         self.orientation = "vertical"
         self.pandemic = pandemic.Pandemic()
         self.city_buttons = self.create_city_buttons()
@@ -81,6 +82,8 @@ class PandemicFrame(boxlayout.BoxLayout):
         ret = button.Button(text="Spieler 1")
 
         def draw_function(init=False):
+            if self.block:
+                return
             if not self.PLAYER_1 or init:
                 self.PLAYER_1 = True
                 ret.text = "Spieler 1"
@@ -88,6 +91,7 @@ class PandemicFrame(boxlayout.BoxLayout):
                 self.PLAYER_1 = False
                 ret.text = "Spieler 2"
             self.pandemic.add_draw()
+            self.block = True
             if not init:
                 self.arrange_buttons()
         draw_function(True)
@@ -96,24 +100,30 @@ class PandemicFrame(boxlayout.BoxLayout):
 
     def city_buttons_data(self):
         ret = []
+        max_phase_level = -99999
         for city_button in self.city_buttons:
             phase = 0
             for pos in range(2, len(city_button.phase())+1):
-                phase += city_button.phase(-pos)*(10**(1-pos))
+                my_phase = city_button.phase(-pos)
+                if my_phase != 0:
+                    phase += my_phase*(10**(1-pos))
+                    max_phase_level = max(-pos, max_phase_level)
                 pass
 
             ret.append([city_button.name(), city_button.get_color(), phase, city_button])
-        return ret
+        return ret, max_phase_level
 
     def arrange_buttons(self):
         self.clear_widgets()
         self.epidemy_button.text = self.epidemy_text()
         self.add_widget(self.epidemy_button)
         self.add_widget(self.draw_button)
-        city_dataframe = pandas.DataFrame(data=self.city_buttons_data(), columns=["name", "color", "phase", "button"])
+        data, max_phase_level = self.city_buttons_data()
+        city_dataframe = pandas.DataFrame(data=data, columns=["name", "color", "phase", "button"])
+
         for index, city_row in city_dataframe.sort_values("phase", ascending=False).iterrows():
             city_button = city_row["button"]
-            city_button.city_button_text()
+            city_button.city_button_text(max_phase_level=max_phase_level)
             self.add_widget(city_button)
 
     def create_single_city_button(self, city, city_buttons):
@@ -131,6 +141,7 @@ class PandemicFrame(boxlayout.BoxLayout):
             self.epidemy_button.on_press()
         else:
             Cities.add_city(city)
+        self.block = False
         self.arrange_buttons()
 
     def create_city_buttons(self):
